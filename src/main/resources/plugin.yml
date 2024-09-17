@@ -1,0 +1,4 @@
+name: Tournaments
+version: '1.0-SNAPSHOT'
+main: gg.airplaines.tournaments.TournamentsPlugin
+api-version: '1.18'
