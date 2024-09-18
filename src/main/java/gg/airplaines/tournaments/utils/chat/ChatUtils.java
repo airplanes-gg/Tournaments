@@ -330,4 +330,10 @@ public class ChatUtils {
             ChatUtils.chat(player, message);
         }
     }
+
+    public static void broadcast(final String message) {
+        for(final Player player : plugin.getServer().getOnlinePlayers()) {
+            ChatUtils.chat(player, message);
+        }
+    }
 }

@@ -117,9 +117,9 @@ public class DuelEvent {
             // Create the tournament.
             {
                 TournamentQuery.TournamentQueryBuilder builder = TournamentQuery.builder();
-                builder.name("1.20 Test Tournament")
+                builder.name("airplanes.gg - " + plugin.duelEventManager().host().getName() + "'s " + plugin.duelEventManager().kit().name() + " Tournament")
                         .gameName("Minecraft")
-                        .description(plugin.duelEventManager().kit().name() + " tournament on JadedMC. Join us at play.jadedmc.net")
+                        .description(plugin.duelEventManager().kit().name() + " tournament on airplanes.gg. Join us at play.airplanes.gg")
                         .holdThirdPlaceMatch(true);
 
                 // Sets the tournament type of the tournament.
@@ -281,12 +281,12 @@ public class DuelEvent {
             // Broadcast start message.
             World world = Bukkit.getWorld("world");
             ChatUtils.broadcast(world, "&8&m+-----------------------***-----------------------+");
-            ChatUtils.broadcast(world, ChatUtils.centerText("&a&l" + plugin.duelEventManager().host().getName() + "'s Tournament"));
+            ChatUtils.broadcast(world, ChatUtils.centerText("&b&l" + plugin.duelEventManager().host().getName() + "'s Tournament"));
             ChatUtils.broadcast(world, "");
-            ChatUtils.broadcast(world, ChatUtils.centerText("&aKit: &f" + plugin.duelEventManager().kit().name()));
-            ChatUtils.broadcast(world, ChatUtils.centerText("&aTeams: &f" + plugin.duelEventManager().teamSize().displayName() + " &7(" + plugin.duelEventManager().bestOf().toString() + "&7)"));
+            ChatUtils.broadcast(world, ChatUtils.centerText("&bKit: &f" + plugin.duelEventManager().kit().name()));
+            ChatUtils.broadcast(world, ChatUtils.centerText("&bTeams: &f" + plugin.duelEventManager().teamSize().displayName() + " &7(" + plugin.duelEventManager().bestOf().toString() + "&7)"));
             ChatUtils.broadcast(world, "");
-            ChatUtils.broadcast(world, ChatUtils.centerText("<green>Bracket: <white><click:open_url:'https://www.challonge.com/" + tournament.getUrl() + "'>https://challonge.com/" + tournament.getUrl() + "</click>"));
+            ChatUtils.broadcast(world, ChatUtils.centerText("<aqua>Bracket: <white><click:open_url:'https://www.challonge.com/" + tournament.getUrl() + "'>https://challonge.com/" + tournament.getUrl() + "</click>"));
             ChatUtils.broadcast(world, "");
             ChatUtils.broadcast(world, "&8&m+-----------------------***-----------------------+");
 
@@ -474,8 +474,8 @@ public class DuelEvent {
         // Display the end message to all players in the tournament.
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             broadcast("&8&m+-----------------------***-----------------------+");
-            broadcast(ChatUtils.centerText("&a&lTournament"));
-            broadcast(ChatUtils.centerText("&aKit: &f" + plugin.duelEventManager().kit().name()));
+            broadcast(ChatUtils.centerText("&b&lTournament"));
+            broadcast(ChatUtils.centerText("&bKit: &f" + plugin.duelEventManager().kit().name()));
             broadcast("");
             broadcast(ChatUtils.centerText("&6&l1st: &f" + top.get(0).getName()));
             broadcast(ChatUtils.centerText("&f&l2nd: &f" + top.get(1).getName()));
@@ -487,7 +487,7 @@ public class DuelEvent {
                 broadcast(ChatUtils.centerText("&c&l3rd: &fNone"));
             }
             broadcast("");
-            broadcast(ChatUtils.centerText("<green>Bracket: <white><click:open_url:'https://www.challonge.com/" + tournament.getUrl() + "'>https://challonge.com/" + tournament.getUrl() + "</click>"));
+            broadcast(ChatUtils.centerText("<aqua>Bracket: <white><click:open_url:'https://www.challonge.com/" + tournament.getUrl() + "'>https://challonge.com/" + tournament.getUrl() + "</click>"));
             broadcast("&8&m+-----------------------***-----------------------+");
         });
 

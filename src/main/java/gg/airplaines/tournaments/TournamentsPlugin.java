@@ -24,11 +24,17 @@
  */
 package gg.airplaines.tournaments;
 
+import gg.airplaines.tournaments.commands.AbstractCommand;
 import gg.airplaines.tournaments.game.GameManager;
 import gg.airplaines.tournaments.game.arena.ArenaManager;
 import gg.airplaines.tournaments.game.kit.KitManager;
+import gg.airplaines.tournaments.game.lobby.LobbyManager;
 import gg.airplaines.tournaments.game.tournament.DuelEventManager;
+import gg.airplaines.tournaments.listeners.*;
 import gg.airplaines.tournaments.settings.ConfigManager;
+import gg.airplaines.tournaments.utils.chat.ChatUtils;
+import gg.airplaines.tournaments.utils.gui.GUIListeners;
+import gg.airplaines.tournaments.utils.scoreboard.ScoreboardUpdate;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class TournamentsPlugin extends JavaPlugin {
@@ -37,20 +43,53 @@ public final class TournamentsPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private KitManager kitManager;
     private GameManager gameManager;
+    private LobbyManager lobbyManager;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
+        ChatUtils.initialize(this);
         this.configManager = new ConfigManager(this);
         this.kitManager = new KitManager(this);
         this.arenaManager = new ArenaManager(this);
         this.gameManager = new GameManager(this);
         this.duelEventManager = new DuelEventManager(this);
+        this.lobbyManager = new LobbyManager(this);
+
+        arenaManager.loadArenas();
+
+        // Updates scoreboards every second
+        new ScoreboardUpdate().runTaskTimer(this, 20L, 20L);
+
+        AbstractCommand.registerCommands(this);
+        registerListeners();
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        ChatUtils.disable();
+    }
+
+    private void registerListeners() {
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        getServer().getPluginManager().registerEvents(new GUIListeners(), this);
+
+        getServer().getPluginManager().registerEvents(new EntityDamageByEntityListener(this), this);
+        getServer().getPluginManager().registerEvents(new EntityDamageListener(this), this);
+        getServer().getPluginManager().registerEvents(new EntityRegainHealthListener(this), this);
+        getServer().getPluginManager().registerEvents(new EntitySpawnListener(this), this);
+        getServer().getPluginManager().registerEvents(new FoodLevelChangeListener(this), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDropItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerEggThrowListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerToggleFlightListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerToggleSneakListener(this), this);
+        getServer().getPluginManager().registerEvents(new ProjectileLaunchListener(this), this);
+        getServer().getPluginManager().registerEvents(new VehicleDamageListener(this), this);
+        getServer().getPluginManager().registerEvents(new VehicleExitListener(this), this);
     }
 
     public ArenaManager arenaManager() {
@@ -71,5 +110,9 @@ public final class TournamentsPlugin extends JavaPlugin {
 
     public GameManager gameManager() {
         return gameManager;
+    }
+
+    public LobbyManager getLobbyManager() {
+        return this.lobbyManager;
     }
 }

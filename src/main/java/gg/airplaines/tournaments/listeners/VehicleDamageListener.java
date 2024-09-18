@@ -22,41 +22,39 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.listeners;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
+import gg.airplaines.tournaments.game.Game;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 
-public class LobbyManager {
+public class VehicleDamageListener implements Listener {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public VehicleDamageListener(TournamentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
-
-        new LobbyScoreboard(plugin, player);
-
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
-
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+    @EventHandler
+    public void onVehicleDamage(VehicleDamageEvent event) {
+        if(!(event.getAttacker() instanceof Player player)) {
+            return;
         }
+
+        Game game = plugin.gameManager().game(player);
+
+        if(game != null) {
+            return;
+        }
+
+        if(player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
+        event.setCancelled(true);
     }
 }

@@ -24,14 +24,17 @@
  */
 package gg.airplaines.tournaments.game.arena.builder;
 
+import gg.airplaines.tournaments.TournamentsPlugin;
 import gg.airplaines.tournaments.game.arena.Arena;
 import gg.airplaines.tournaments.game.kit.Kit;
+import gg.airplaines.tournaments.utils.FileUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -42,7 +45,7 @@ import java.util.*;
  * Stores data of an arena that is still being set up.
  */
 public class ArenaBuilder {
-    private final Plugin plugin;
+    private final TournamentsPlugin plugin;
     private String spectatorSpawn = null;
     private String name;
     private String builders;
@@ -58,7 +61,7 @@ public class ArenaBuilder {
      * Creates the arena builder.
      * @param plugin Instance of the plugin.
      */
-    public ArenaBuilder(final Plugin plugin, World world) {
+    public ArenaBuilder(final TournamentsPlugin plugin, World world) {
         this.plugin = plugin;
         this.world = world;
     }
@@ -69,7 +72,7 @@ public class ArenaBuilder {
      * @param plugin Instance of the plugin.
      * @param arena Arena to be edited.
      */
-    public ArenaBuilder(final Plugin plugin, Arena arena, World world) {
+    public ArenaBuilder(final TournamentsPlugin plugin, Arena arena, World world) {
         this.plugin = plugin;
         this.world = world;
         this.id = arena.id();
@@ -261,6 +264,35 @@ public class ArenaBuilder {
 
             // Saves the file.
             configuration.save(file);
+
+            String worldID = world.getName();
+            File worldFolder = world.getWorldFolder();
+            for(Player worldPlayer : world.getPlayers()) {
+                plugin.getLobbyManager().sendToLobby(worldPlayer);
+            }
+
+            Bukkit.unloadWorld(world,true);
+
+            // Saves the world where it belongs.
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                // Load applicable folders.
+                File mapsFolder = new File(worldFolder.getParentFile(), "maps");
+                File savedWorldFolder = new File(mapsFolder, worldID);
+
+                // Delete the old save if in edit mode.
+                if(editMode) {
+                    FileUtils.deleteDirectory(savedWorldFolder);
+                }
+
+                // Copies the world to the maps folder.
+                FileUtils.copyFileStructure(worldFolder, savedWorldFolder);
+
+                // Deletes the previous world.
+                FileUtils.deleteDirectory(worldFolder);
+
+                plugin.getServer().getScheduler().runTask(plugin, () -> plugin.arenaManager().loadArena(id));
+                plugin.arenaManager().arenaBuilder(null);
+            });
         }
         catch (IOException exception) {
             exception.printStackTrace();

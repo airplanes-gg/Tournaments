@@ -22,41 +22,36 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.commands;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import gg.airplaines.tournaments.game.tournament.EliminationType;
+import gg.airplaines.tournaments.game.tournament.EventStatus;
+import gg.airplaines.tournaments.utils.chat.ChatUtils;
+import org.bukkit.command.CommandSender;
 
-public class LobbyManager {
-    private final TournamentsPlugin plugin;
+public class CancelCMD extends AbstractCommand {
+    private TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public CancelCMD(TournamentsPlugin plugin) {
+        super("cancel", "tournament.use", true);
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        switch (plugin.duelEventManager().eventStatus()) {
+            case NONE -> ChatUtils.chat(sender, "&c&lError &8» &cThere is no tournament to cancel!");
+            case RUNNING -> ChatUtils.chat(sender, "&c&lError &8» &cThe tournament is already running!");
+            case WAITING -> {
+                plugin.duelEventManager().eventStatus(EventStatus.NONE);
+                plugin.duelEventManager().eventType(EliminationType.NONE);
+                plugin.duelEventManager().host(null);
+                plugin.duelEventManager().kit(null);
+                ChatUtils.broadcast("&b&lTournament &8» &bThe tournament has been canceled.");
 
-        new LobbyScoreboard(plugin, player);
-
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
-
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+                // TODO: Update bungeecord.
+            }
         }
     }
 }

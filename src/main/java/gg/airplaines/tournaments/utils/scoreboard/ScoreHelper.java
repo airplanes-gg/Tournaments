@@ -92,12 +92,6 @@ public class ScoreHelper {
         text = ChatColor.translateAlternateColorCodes('&', text);
         String pre = getFirstSplit(text);
         String suf = getFirstSplit(ChatColor.getLastColors(pre) + getSecondSplit(text));
-
-        if(pre.length() > 0 && pre.charAt(pre.length() - 1) == '§') {
-            pre = pre.substring(0, 15);
-            suf = ChatColor.translateAlternateColorCodes('&', "&" + suf.substring(2));
-        }
-
         team.setPrefix(pre);
         team.setSuffix(suf);
     }
@@ -142,4 +136,5 @@ public class ScoreHelper {
         }
         return s.length()>16 ? s.substring(16) : "";
     }
+
 }

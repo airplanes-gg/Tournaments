@@ -25,6 +25,7 @@
 package gg.airplaines.tournaments.game.lobby;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
+import gg.airplaines.tournaments.game.Game;
 import gg.airplaines.tournaments.utils.DateUtils;
 import gg.airplaines.tournaments.utils.scoreboard.CustomScoreboard;
 import gg.airplaines.tournaments.utils.scoreboard.ScoreHelper;
@@ -36,10 +37,17 @@ public class LobbyScoreboard extends CustomScoreboard {
     public LobbyScoreboard(final TournamentsPlugin plugin, final Player player) {
         super(player);
         this.plugin = plugin;
+
+        CustomScoreboard.getPlayers().put(player.getUniqueId(), this);
+        update(player);
     }
 
-    public void update(final Player player) {
-        final ScoreHelper helper;
+    /**
+     * Updates the scoreboard for a specific player.
+     * @param player Player to update scoreboard for.
+     */
+    public void update(Player player) {
+        ScoreHelper helper;
 
         if(ScoreHelper.hasScore(player)) {
             helper = ScoreHelper.getByPlayer(player);
@@ -48,21 +56,70 @@ public class LobbyScoreboard extends CustomScoreboard {
             helper = ScoreHelper.createScore(player);
         }
 
-        helper.setTitle("&5&lTournament");
-        helper.setSlot(15, "&7" + DateUtils.currentDateToString());
-        helper.setSlot(14, "");
-        helper.removeSlot(13);
-        helper.removeSlot(12);
-        helper.removeSlot(11);
-        helper.removeSlot(10);
-        helper.removeSlot(9);
-        helper.removeSlot(8);
-        helper.removeSlot(7);
-        helper.removeSlot(6);
-        helper.setSlot(5, "Waiting for a host.");
-        helper.setSlot(4, "");
-        helper.setSlot(3, "&5Players: &7" + plugin.getServer().getOnlinePlayers().size());
-        helper.setSlot(2, "");
-        helper.setSlot(1, "&5play.airplanes.gg");
+        // Sets up the scoreboard based on the current state of the tournament.
+        switch (plugin.duelEventManager().eventStatus()) {
+            case NONE -> {
+                helper.setTitle("&b&lTournament");
+                helper.setSlot(15, "&7" + DateUtils.currentDateToString());
+                helper.setSlot(14, "");
+                helper.removeSlot(13);
+                helper.removeSlot(12);
+                helper.removeSlot(11);
+                helper.removeSlot(10);
+                helper.removeSlot(9);
+                helper.removeSlot(8);
+                helper.removeSlot(7);
+                helper.removeSlot(6);
+                helper.setSlot(5, "&fWaiting for a host.");
+                helper.setSlot(4, "");
+                helper.setSlot(3, "&bPlayers: &f" + plugin.getServer().getOnlinePlayers().size());
+                helper.setSlot(2, "");
+                helper.setSlot(1, "&bplay.airplanes.gg");
+            }
+
+            case WAITING -> {
+                helper.setTitle("&b&lTournament");
+                helper.removeSlot(15);
+                helper.removeSlot(14);
+                helper.removeSlot(13);
+                helper.removeSlot(12);
+                helper.removeSlot(11);
+                helper.setSlot(10, "&7" + DateUtils.currentDateToString());
+                helper.setSlot(9, "");
+                helper.setSlot(8, "&bHost: &f" + plugin.duelEventManager().host().getName());
+                helper.setSlot(7, "&bKit: &f" + plugin.duelEventManager().kit().name());
+                helper.setSlot(6, "&bBracket: &f" + plugin.duelEventManager().eventType().getName());
+                helper.setSlot(5, "&bTeam: &f" + plugin.duelEventManager().teamSize().displayName() + " &7(" + plugin.duelEventManager().bestOf().getName() + "&7)");
+                helper.setSlot(4, "");
+                helper.setSlot(3, "&bPlayers: &f" + plugin.getServer().getOnlinePlayers().size());
+                helper.setSlot(2, "");
+                helper.setSlot(1, "&bplay.airplanes.gg");
+            }
+
+            case RUNNING -> {
+                helper.setTitle("&b&lTournament");
+                helper.removeSlot(15);
+                helper.removeSlot(14);
+                helper.removeSlot(13);
+                helper.removeSlot(12);
+                helper.removeSlot(11);
+                helper.setSlot(10, "&7" + DateUtils.currentDateToString());
+                helper.setSlot(9, "");
+                helper.setSlot(8, "&bHost: &f" + plugin.duelEventManager().host().getName());
+                helper.setSlot(7, "&bKit: &f" + plugin.duelEventManager().kit().name());
+                helper.setSlot(6, "&bBracket: &f" + plugin.duelEventManager().eventType().getName());
+                helper.setSlot(5, "&bTeam: &f" + plugin.duelEventManager().teamSize().displayName() + " &7(" + plugin.duelEventManager().bestOf().getName() + "&7)");
+                helper.setSlot(4, "");
+
+                int fighting = 0;
+                for(Game game : plugin.gameManager().activeGames()) {
+                    fighting += game.players().size();
+                }
+
+                helper.setSlot(3, "&bFighting: &f" + fighting);
+                helper.setSlot(2, "");
+                helper.setSlot(1, "&bplay.airplanes.gg");
+            }
+        }
     }
 }

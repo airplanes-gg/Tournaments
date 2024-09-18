@@ -22,41 +22,40 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.commands;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import gg.airplaines.tournaments.game.arena.Arena;
+import gg.airplaines.tournaments.utils.chat.ChatUtils;
+import org.bukkit.command.CommandSender;
 
-public class LobbyManager {
+/**
+ * This class runs the /arenas command, which displays all currently available arenas.
+ */
+public class ArenasCMD extends AbstractCommand {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    /**
+     * Creates the command.
+     * @param plugin Instance of the plugin.
+     */
+    public ArenasCMD(TournamentsPlugin plugin) {
+        super("arenas", "duels.admin", true);
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    /**
+     * Executes the command.
+     * @param sender The Command Sender.
+     * @param args Arguments of the command.
+     */
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        ChatUtils.chat(sender, "<aqua><bold>Tournaments</bold> <dark_gray>» <aqua>Currently Loaded Arenas:");
 
-        new LobbyScoreboard(plugin, player);
-
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
-
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+        // Display all active arenas.
+        for(Arena arena : plugin.arenaManager().getArenas()) {
+            ChatUtils.chat(sender, "  <dark_gray>➤ <gray>" + arena.id()) ;
         }
     }
 }

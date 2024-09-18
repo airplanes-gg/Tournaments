@@ -22,41 +22,36 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.listeners;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
+import gg.airplaines.tournaments.game.Game;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 
-public class LobbyManager {
+public class EntityRegainHealthListener implements Listener {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public EntityRegainHealthListener(TournamentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    @EventHandler
+    public void onRegainHealth(EntityRegainHealthEvent event) {
+        if(!(event.getEntity() instanceof Player player)) {
+            return;
+        }
 
-        new LobbyScoreboard(plugin, player);
+        Game game = plugin.gameManager().game(player);
 
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
+        if(game == null) {
+            return;
+        }
 
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+        if(!game.kit().naturalRegeneration() && event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED) {
+            event.setCancelled(true);
         }
     }
 }

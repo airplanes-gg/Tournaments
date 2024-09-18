@@ -26,6 +26,7 @@ package gg.airplaines.tournaments.game.kit;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
 import gg.airplaines.tournaments.game.kit.kits.ArcherKit;
+import gg.airplaines.tournaments.game.kit.kits.HorseKit;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class KitManager {
      */
     public KitManager(final TournamentsPlugin plugin) {
         activeKits.add(new ArcherKit(plugin));
+        activeKits.add(new HorseKit(plugin));
     }
 
     /**

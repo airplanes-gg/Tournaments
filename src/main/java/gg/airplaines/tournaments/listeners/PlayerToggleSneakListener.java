@@ -22,41 +22,38 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.listeners;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import gg.airplaines.tournaments.game.Game;
+import gg.airplaines.tournaments.game.GameState;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-public class LobbyManager {
+public class PlayerToggleSneakListener implements Listener {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public PlayerToggleSneakListener(TournamentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    @EventHandler
+    public void onEvent(PlayerToggleSneakEvent event) {
+        Game game = plugin.gameManager().game(event.getPlayer());
 
-        new LobbyScoreboard(plugin, player);
-
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
-
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+        if(game == null) {
+            return;
         }
+
+        if(game.gameState() != GameState.RUNNING) {
+            return;
+        }
+
+        if(game.spectators().contains(event.getPlayer())) {
+            return;
+        }
+
+        game.kit().onPlayerToggleSneak(game, event);
     }
 }

@@ -33,6 +33,7 @@ import gg.airplaines.tournaments.game.kit.Kit;
 import gg.airplaines.tournaments.game.team.Team;
 import gg.airplaines.tournaments.game.team.TeamManager;
 import gg.airplaines.tournaments.game.tournament.team.EventTeam;
+import gg.airplaines.tournaments.utils.GameUtils;
 import gg.airplaines.tournaments.utils.Timer;
 import gg.airplaines.tournaments.utils.chat.ChatUtils;
 import gg.airplaines.tournaments.utils.items.ItemBuilder;
@@ -104,15 +105,15 @@ public class Game {
             }
 
             ChatUtils.chat(player, "&8&m+-----------------------***-----------------------+");
-            ChatUtils.chat(player, ChatUtils.centerText("&a&l" + kit.name() + " Duel"));
+            ChatUtils.chat(player, ChatUtils.centerText("&b&l" + kit.name() + " Duel"));
             ChatUtils.chat(player, "");
 
             // Display the opponents label, based on the number.
             if(opponents.size() == 1) {
-                ChatUtils.chat(player, ChatUtils.centerText("&aOpponent:"));
+                ChatUtils.chat(player, ChatUtils.centerText("&bOpponent:"));
             }
             else {
-                ChatUtils.chat(player, ChatUtils.centerText("&aOpponents:"));
+                ChatUtils.chat(player, ChatUtils.centerText("&bOpponents:"));
             }
 
             // Lists the opponents.
@@ -205,7 +206,7 @@ public class Game {
                 }
 
                 if(counter  != 0) {
-                    broadcast("&aStarting in " + counter + "...");
+                    broadcast("&bStarting in " + counter + "...");
                     for (Player player : players()) {
                         player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1, 1);
                     }
@@ -264,21 +265,21 @@ public class Game {
 
         broadcast("&8&m+-----------------------***-----------------------+");
         broadcast(" ");
-        broadcast(ChatUtils.centerText("&a&l" + kit.name() + " Duel &7- &f&l" + timer));
+        broadcast(ChatUtils.centerText("&b&l" + kit.name() + " Duel &7- &f&l" + timer));
         broadcast(" ");
         if(winner.players().size() > 1) {
-            broadcast(ChatUtils.centerText("&aWinners:"));
+            broadcast(ChatUtils.centerText("&bWinners:"));
         }
         else {
-            broadcast(ChatUtils.centerText("&aWinner:"));
+            broadcast(ChatUtils.centerText("&bWinner:"));
         }
 
         for(Player player : winner.players()) {
             if(teamManager.team(player).deadPlayers().contains(player)) {
-                broadcast(ChatUtils.centerText("&f" + player.getName() + " &a(&c0%&a)"));
+                broadcast(ChatUtils.centerText("&f" + player.getName() + " &7(&c0%&7)"));
             }
             else {
-                broadcast(ChatUtils.centerText("&f" + player.getName() + " &a(" + GameUtils.getFormattedHealth(player) + "&a)"));
+                broadcast(ChatUtils.centerText("&f" + player.getName() + " &7(" + GameUtils.getFormattedHealth(player) + "&7)"));
             }
         }
 
@@ -292,7 +293,7 @@ public class Game {
         }
 
         broadcast("");
-        broadcast(ChatUtils.centerText("&aScore: &f" + winner.score() + " - " + loser.score()));
+        broadcast(ChatUtils.centerText("&bScore: &f" + winner.score() + " - " + loser.score()));
 
         broadcast(" ");
         broadcast("&8&m+-----------------------***-----------------------+");
@@ -310,21 +311,30 @@ public class Game {
                     player.spigot().getHiddenPlayers().forEach(player::showPlayer);
                 }
 
-                Team loser = winner;
+                Team gameLoser = winner;
                 for(Team team : teamManager.teams()) {
                     if(team.equals(winner)) {
                         continue;
                     }
 
-                    loser = team;
+                    gameLoser = team;
                 }
 
-                plugin.duelEventManager().activeEvent().addResults(match, winner, loser);
-                plugin.duelEventManager().activeEvent().broadcast("&a&lTournament &8» &f" + winner.eventTeam().name() + " &ahas defeated &f" + loser.eventTeam().name() + " &7(&f" + winner.score() + " &7-&f " + loser.score() + "&7)&a.");
+                plugin.duelEventManager().activeEvent().addResults(match, winner, gameLoser);
+                plugin.duelEventManager().activeEvent().broadcast("&b&lTournament &8» &f" + winner.eventTeam().name() + " &bhas defeated &f" + gameLoser.eventTeam().name() + " &7(&f" + winner.score() + " &7-&f " + gameLoser.score() + "&7)&b.");
+
+                // Fixes weird teleport issue with horses at the end of the game.
+                for(Entity entity : world.getEntities()) {
+                    if(entity instanceof Player) {
+                        continue;
+                    }
+
+                    entity.remove();
+                }
 
                 // Replace this with tournament lobby stuff.
-                players().forEach(player -> LobbyUtils.sendToTournamentLobby(plugin, player));
-                spectators().forEach(player -> LobbyUtils.sendToTournamentLobby(plugin, player));
+                players().forEach(player -> plugin.getLobbyManager().sendToLobby(player));
+                spectators().forEach(player -> plugin.getLobbyManager().sendToLobby(player));
 
                 for(Team team : teamManager.teams()) {
                     team.players().clear();
@@ -359,21 +369,21 @@ public class Game {
 
         broadcast("&8&m+-----------------------***-----------------------+");
         broadcast(" ");
-        broadcast(ChatUtils.centerText("&a&l" + kit.name() + " Duel &7- &f&l" + timer));
+        broadcast(ChatUtils.centerText("&b&l" + kit.name() + " Duel &7- &f&l" + timer));
         broadcast(" ");
         if(winner.players().size() > 1) {
-            broadcast(ChatUtils.centerText("&aWinners:"));
+            broadcast(ChatUtils.centerText("&bWinners:"));
         }
         else {
-            broadcast(ChatUtils.centerText("&aWinner:"));
+            broadcast(ChatUtils.centerText("&bWinner:"));
         }
 
         for(Player player : winner.players()) {
             if(teamManager.team(player).deadPlayers().contains(player)) {
-                broadcast(ChatUtils.centerText("&f" + player.getName() + " &a(&c0%&a)"));
+                broadcast(ChatUtils.centerText("&f" + player.getName() + " &7(&c0%&7)"));
             }
             else {
-                broadcast(ChatUtils.centerText("&f" + player.getName() + " &a(" + GameUtils.getFormattedHealth(player) + "&a)"));
+                broadcast(ChatUtils.centerText("&f" + player.getName() + " &7(" + GameUtils.getFormattedHealth(player) + "&7)"));
             }
         }
         broadcast(" ");
@@ -396,11 +406,20 @@ public class Game {
             }
 
             plugin.duelEventManager().activeEvent().addResults(match, winner, loser);
-            plugin.duelEventManager().activeEvent().broadcast("&a&lTournament &8» &f" + winner.eventTeam().name() + " &ahas defeated &f" + loser.eventTeam().name() + " &7(&f" + winner.score() + " &7-&f " + loser.score() + "&7)&a.");
+            plugin.duelEventManager().activeEvent().broadcast("&b&lTournament &8» &f" + winner.eventTeam().name() + " &bhas defeated &f" + loser.eventTeam().name() + " &7(&f" + winner.score() + " &7-&f " + loser.score() + "&7)&b.");
+
+            // Fixes weird teleport issue with horses at the end of the game.
+            for(Entity entity : world.getEntities()) {
+                if(entity instanceof Player) {
+                    continue;
+                }
+
+                entity.remove();
+            }
 
             // Replace this with tournament lobby stuff.
-            players().forEach(player -> LobbyUtils.sendToLobby(plugin, player));
-            spectators().forEach(player -> LobbyUtils.sendToLobby(plugin, player));
+            players().forEach(player -> plugin.getLobbyManager().sendToLobby(player));
+            spectators().forEach(player -> plugin.getLobbyManager().sendToLobby(player));
 
             for(Team team : teamManager.teams()) {
                 team.players().clear();
@@ -579,7 +598,7 @@ public class Game {
             return;
         }
 
-        broadcast(teamManager.team(player).teamColor().chatColor() + player.getName() + " disconnected.");
+        broadcast(teamManager.team(player).teamColor().chatColor() + player.getName() + " &bdisconnected.");
         teamManager.team(player).killPlayer(player);
         player.getLocation().getWorld().strikeLightningEffect(player.getLocation());
 
@@ -612,7 +631,7 @@ public class Game {
         player.getLocation().getWorld().strikeLightningEffect(player.getLocation());
         addSpectator(player);
         teamManager.team(player).killPlayer(player);
-        broadcast(teamManager.team(player).teamColor().chatColor()  + player.getName() + " &ahas died!");
+        broadcast(teamManager.team(player).teamColor().chatColor()  + player.getName() + " &bhas died!");
 
         // Prevents stuff from breaking if the game is already over.
         if(gameState == GameState.END) {
@@ -645,7 +664,7 @@ public class Game {
         player.getLocation().getWorld().strikeLightningEffect(player.getLocation());
         addSpectator(player);
         teamManager.team(player).killPlayer(player);
-        broadcast(teamManager.team(player).teamColor().chatColor()  + player.getName() + " &awas killed by " + teamManager.team(killer).teamColor().chatColor() + killer.getName() + " &a(" + GameUtils.getFormattedHealth(killer) + "&a)");
+        broadcast(teamManager.team(player).teamColor().chatColor()  + player.getName() + " &bwas killed by " + teamManager.team(killer).teamColor().chatColor() + killer.getName() + " &7(" + GameUtils.getFormattedHealth(killer) + "&7)");
 
         // Prevents stuff from breaking if the game is already over.
         if(gameState == GameState.END) {
@@ -708,7 +727,7 @@ public class Game {
             pl.showPlayer(player);
         }
 
-        LobbyUtils.sendToTournamentLobby(plugin, player);
+        plugin.getLobbyManager().sendToLobby(player);
     }
 
     public void resetArena() {

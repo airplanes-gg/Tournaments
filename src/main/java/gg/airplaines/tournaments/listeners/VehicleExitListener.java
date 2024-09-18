@@ -22,41 +22,45 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.listeners;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
+import gg.airplaines.tournaments.game.Game;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 
-public class LobbyManager {
+public class VehicleExitListener implements Listener {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public VehicleExitListener(TournamentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    @EventHandler
+    public void onExit(VehicleExitEvent event) {
 
-        new LobbyScoreboard(plugin, player);
+        if(!(event.getExited() instanceof Player player)) {
+            return;
+        }
 
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
+        Game game = plugin.gameManager().game(player);
 
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+        if(game == null) {
+            return;
+        }
+
+        if(!event.getExited().isValid()) {
+            return;
+        }
+
+        if(game.spectators().contains(player)) {
+            return;
+        }
+
+        if(!game.kit().exitVehicle()) {
+            event.setCancelled(true);
         }
     }
 }

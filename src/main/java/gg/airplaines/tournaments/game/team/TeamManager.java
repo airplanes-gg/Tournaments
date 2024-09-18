@@ -44,9 +44,9 @@ public class TeamManager {
         this.plugin = plugin;
 
         availableColors.add(TeamColor.RED);
+        availableColors.add(TeamColor.GREEN);
         availableColors.add(TeamColor.BLUE);
         availableColors.add(TeamColor.YELLOW);
-        availableColors.add(TeamColor.GREEN);
         availableColors.add(TeamColor.PURPLE);
         availableColors.add(TeamColor.ORANGE);
         availableColors.add(TeamColor.AQUA);

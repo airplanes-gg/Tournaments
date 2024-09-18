@@ -65,23 +65,23 @@ public class GameScoreboard extends CustomScoreboard {
             opponents.addAll(opposingTeam.players());
         }
 
-        helper.setTitle("&a&lTournament");
+        helper.setTitle("&b&lTournament");
 
         helper.setSlot(15, "&7" + DateUtils.currentDateToString());
         helper.setSlot(14, "");
-        helper.setSlot(13, "&aTime: &f" + game.timer().toString());
+        helper.setSlot(13, "&bTime: &f" + game.timer().toString());
         helper.setSlot(12, "");
-        helper.setSlot(11, "&aKit:");
+        helper.setSlot(11, "&bKit:");
         helper.setSlot(10, "  &f" + game.kit().name());
         helper.setSlot(9, "");
 
         int slot = 7;
         if(opponents.size() < 3 && opponents.size() > 0) {
             if(opponents.size() == 1) {
-                helper.setSlot(8, "&aOpponent:");
+                helper.setSlot(8, "&bOpponent:");
             }
             else {
-                helper.setSlot(8, "&aOpponents:");
+                helper.setSlot(8, "&bOpponents:");
             }
 
             for(Player opponent : opponents) {
@@ -101,7 +101,7 @@ public class GameScoreboard extends CustomScoreboard {
             }
         }
         else {
-            helper.setSlot(8, "&aOpponents: &f" + opponents.size());
+            helper.setSlot(8, "&bOpponents: &f" + opponents.size());
         }
 
         for(int i = 3; i < slot; i++) {
@@ -109,6 +109,6 @@ public class GameScoreboard extends CustomScoreboard {
         }
 
         helper.setSlot(2, "");
-        helper.setSlot(1, "&aplay.jadedmc.net");
+        helper.setSlot(1, "&bplay.airplanes.gg");
     }
 }

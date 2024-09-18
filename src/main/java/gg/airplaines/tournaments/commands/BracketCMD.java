@@ -22,41 +22,28 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.commands;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import gg.airplaines.tournaments.utils.chat.ChatUtils;
+import org.bukkit.command.CommandSender;
 
-public class LobbyManager {
+public class BracketCMD extends AbstractCommand {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    public BracketCMD(TournamentsPlugin plugin) {
+        super("bracket", "", true);
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
-
-        new LobbyScoreboard(plugin, player);
-
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
-
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        if(plugin.duelEventManager().activeEvent() == null) {
+            ChatUtils.chat(sender, "&c&lError &8» &cThere is no tournament currently active!");
+            return;
         }
+
+        String url = "https://challonge.com/" + plugin.duelEventManager().activeEvent().tournament().getUrl();
+        ChatUtils.chat(sender, "&b&lTournament&8» &bBracket: &f<click:open_url:'" + url + "'>" + url + "</click>");
     }
 }

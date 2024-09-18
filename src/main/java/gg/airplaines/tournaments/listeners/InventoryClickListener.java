@@ -22,41 +22,54 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  */
-package gg.airplaines.tournaments.game.lobby;
+package gg.airplaines.tournaments.listeners;
 
 import gg.airplaines.tournaments.TournamentsPlugin;
-import gg.airplaines.tournaments.utils.LocationUtils;
+import gg.airplaines.tournaments.game.Game;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
-public class LobbyManager {
+/**
+ * This class runs every time an inventory is clicked.
+ * We use this to prevent players from moving items in their inventory.
+ */
+public class InventoryClickListener implements Listener {
     private final TournamentsPlugin plugin;
 
-    public LobbyManager(@NotNull final TournamentsPlugin plugin) {
+    /**
+     * Creates the Listener.
+     * @param plugin Instance of the plugin.
+     */
+    public InventoryClickListener(TournamentsPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void sendToLobby(@NotNull final Player player) {
-        player.teleport(LocationUtils.getSpawn(plugin));
+    /**
+     * Runs when the event is called.
+     * @param event PlayerDropItemEvent.
+     */
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
 
-        new LobbyScoreboard(plugin, player);
+        // Makes sure it was actually a player who clicked the inventory.
+        if(!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
 
-        player.setGameMode(GameMode.ADVENTURE);
-        player.setMaxHealth(20);
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setFireTicks(0);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        player.spigot().setCollidesWithEntities(true);
-        player.setExp(0);
-        player.setLevel(0);
+        // Allow players in creative mode to move items around, in case they are building.
+        if(player.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
 
-        // Remove potion effects.
-        for(PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
+        // Check the game the player is in.
+        Game game = plugin.gameManager().game(player);
+
+        // If they are not in a game, cancels the event.
+        if(game == null) {
+            event.setCancelled(true);
         }
     }
 }
